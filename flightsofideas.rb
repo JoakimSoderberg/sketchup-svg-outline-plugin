@@ -23,16 +23,18 @@ require 'LangHandler.rb'
 ###########################################################
 
 $uStrings = LanguageHandler.new("FlightsOfIdeasSVG")
-flightsOfIdeasExtensionSVG = SketchupExtension.new $uStrings.GetString("FlightsOfIdeasSVG"), "FlightsOfIdeas/svgExportTools.rb"                  
-flightsOfIdeasExtensionSVG.description=$uStrings.GetString("These tools allow the creation of SVG files using object faces.")                        
+flightsOfIdeasExtensionSVG = SketchupExtension.new $uStrings.GetString("FlightsOfIdeasSVG"), "FlightsOfIdeas/svgExportTools.rb"
+flightsOfIdeasExtensionSVG.description=$uStrings.GetString("These tools allow the creation of SVG files using object faces.")
 Sketchup.register_extension flightsOfIdeasExtensionSVG, true
 #$uStrings = LanguageHandler.new("FlightsOfIdeasSTL") #STL coming soon...
-#flightsOfIdeasExtensionSTL = SketchupExtension.new $uStrings.GetString("FlightsOfIdeasSTL"), "FlightsOfIdeas/stlExportTools.rb"                  
-#flightsOfIdeasExtensionSTL.description=$uStrings.GetString("These tools allow the creation of STL files using object faces.")                        
+#flightsOfIdeasExtensionSTL = SketchupExtension.new $uStrings.GetString("FlightsOfIdeasSTL"), "FlightsOfIdeas/stlExportTools.rb"
+#flightsOfIdeasExtensionSTL.description=$uStrings.GetString("These tools allow the creation of STL files using object faces.")
 #Sketchup.register_extension flightsOfIdeasExtensionSTL, true
-$uStrings = LanguageHandler.new("FlightsOfIdeasTools")
-flightsOfIdeasExtensionTools = SketchupExtension.new $uStrings.GetString("FlightsOfIdeasTools"), "FlightsOfIdeas/flightsOfIdeasTools.rb"                  
-flightsOfIdeasExtensionTools.description=$uStrings.GetString("Go straight to the Flights Of Ideas website.")                        
-Sketchup.register_extension flightsOfIdeasExtensionTools, true
+
+
+#$uStrings = LanguageHandler.new("FlightsOfIdeasTools")
+#flightsOfIdeasExtensionTools = SketchupExtension.new $uStrings.GetString("FlightsOfIdeasTools"), "FlightsOfIdeas/flightsOfIdeasTools.rb"
+#flightsOfIdeasExtensionTools.description=$uStrings.GetString("Go straight to the Flights Of Ideas website.")
+#Sketchup.register_extension flightsOfIdeasExtensionTools, true
 
 ###########################################################

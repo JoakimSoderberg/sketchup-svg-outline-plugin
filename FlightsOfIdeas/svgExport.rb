@@ -59,8 +59,6 @@ class SvgExport
 		@svgFilename = Sketchup.active_model.get_attribute "foi_svg_export", "svgFilename", "flightsOfIdeas.svg"
 		# Border inside of SVG document
 		@paperBorder = Sketchup.active_model.get_attribute "foi_svg_export", "paperBorder", "10"	
-		# Width of SVG lines/paths
-		@lineWidth = Sketchup.active_model.get_attribute "foi_svg_export", "lineWidth", "1"
 		# Units to use in SVG file
 		@units = Sketchup.active_model.get_attribute "foi_svg_export", "units", "mm"		
 		# Whether to export hidden lines
@@ -68,27 +66,31 @@ class SvgExport
 		# Whether to export outlines
 		@exportOutlines = Sketchup.active_model.get_attribute "foi_svg_export", "exportOutlines", true		
 		# Whether to export disecting lines (useful when laser etching)
-		@exportInternalLines = Sketchup.active_model.get_attribute "foi_svg_export", "exportEtch", false		
+		@exportInternalLines = Sketchup.active_model.get_attribute "foi_svg_export", "exportEtch", true		
 		# Whether to export internal lines which are not part of a faces loops (useful when laser etching)
-		@exportOrphanLines = Sketchup.active_model.get_attribute "foi_svg_export", "exportOrphans", false	
+		@exportOrphanLines = Sketchup.active_model.get_attribute "foi_svg_export", "exportOrphans", true	
 		# Whether to export SketchUp text annotations
-		@exportAnnotations = Sketchup.active_model.get_attribute "foi_svg_export", "exportAnnotations", true
+		@exportAnnotations = Sketchup.active_model.get_attribute "foi_svg_export", "exportAnnotations", false
 		# The size of text annotations
 		@annotationHeight = Sketchup.active_model.get_attribute "foi_svg_export", "annotationHeight", "10"	
 		# The type of text exported (SVG or laser script)
 		@annotationType = Sketchup.active_model.get_attribute "foi_svg_export", "annotationType", "SVG"
 		# Whether to export as path or lines to SVG file
-		@exportSvgType = Sketchup.active_model.get_attribute "foi_svg_export", "exportSVG", "lines"	
+		@exportSvgType = Sketchup.active_model.get_attribute "foi_svg_export", "exportSVG", "paths"	
 		# Colours for SVG file
-		@outlineRGB = Sketchup.active_model.get_attribute "foi_svg_export", "outlineRGB", "0,0,255"
-		@dissectRGB = Sketchup.active_model.get_attribute "foi_svg_export", "dissectRGB", "255,0,0"
-		@orphanRGB = Sketchup.active_model.get_attribute "foi_svg_export", "orphanRGB", "0,255,0"
-		@annotationRGB = Sketchup.active_model.get_attribute "foi_svg_export", "annotationRGB", "255,0,0"
+		@outlineRGB = Sketchup.active_model.get_attribute "foi_svg_export", "outlineRGB", "0000FF"
+		@dissectRGB = Sketchup.active_model.get_attribute "foi_svg_export", "dissectRGB", "FF0000"
+		@orphanRGB = Sketchup.active_model.get_attribute "foi_svg_export", "orphanRGB", "00FF00"
+		@annotationRGB = Sketchup.active_model.get_attribute "foi_svg_export", "annotationRGB", "000000"
+		# Width of lines for SVG file
+		@outlineWidth = Sketchup.active_model.get_attribute "foi_svg_export", "outlineWidth", "1"
+		@dissectWidth = Sketchup.active_model.get_attribute "foi_svg_export", "dissectWidth", "1"
+		@orphanWidth = Sketchup.active_model.get_attribute "foi_svg_export", "orphanWidth", "1"
+		@annotationWidth = Sketchup.active_model.get_attribute "foi_svg_export", "annotationWidth", "1"		
 		# SVG Editor to execute if desired
 		@svgEditor = Sketchup.active_model.get_attribute "foi_svg_export", "svgEditor", ""
 		@execEditor = Sketchup.active_model.get_attribute "foi_svg_export", "execEditor", false;
 	end
-
 
 	#######################################################
 	# Create UI context menu for creating SVG templates
@@ -118,9 +120,9 @@ class SvgExport
 		path = Sketchup.find_support_file "CreateSvg.png", "plugins/FlightsOfIdeas/Images/"		
 		cmd.small_icon = path
 		cmd.large_icon = path
-		cmd.tooltip = "Create SVG file from selected face(s)"
-		cmd.status_bar_text = "Create SVG file from selected face(s)"
-		cmd.menu_text = "Create SVG"				
+		cmd.tooltip = "Create 2D SVG file from selected face(s)"
+		cmd.status_bar_text = "The 2D format is used for simple CNC milling, laser cutting, documentation, and layout"
+		cmd.menu_text = "Create SVG file"				
 		toolbar = toolbar.add_item cmd
 		toolbar.show
 	end
@@ -139,55 +141,60 @@ class SvgExport
 			# Get HTML file for dlg
 			html = File.dirname(__FILE__) + "/svgExportDialog.html";
 			if (html.length == 0)
+				UI.messagebox "Failed to open export dialog", MB_OK, "Error"
 				return false;
 			end
 			
 			# Create new dlg
 			@dlg = UI::WebDialog.new "SVG Export Preferences", true
-			@dlg.min_height=590;
+			@dlg.min_height=600;
 			@dlg.min_width=1024;
 
 			# Set close callback function
-			@dlg.add_action_callback("on_close") {|d,p| @dlgOpen = false; d.close(); }
+			@dlg.add_action_callback("on_close") {|d,p| 
+				@dlgOpen = false; d.close(); 
+			}
 			
 			# Set close callback function
 			@dlg.add_action_callback("on_ok") {|d,p| 
-			
 				# Get arguments
 				args = p.split(','); 
 				@svgFilename=args[0]; @paperBorder = args[1]; @units=args[2];
+				@exportSvgType = args[3];				
 				@exportHiddenLines = false;
-				if args[3] == "true"
-					@exportHiddenLines = true;
-				end		
-				@exportOutlines = false;
 				if args[4] == "true"
+					@exportHiddenLines = true;
+				end					
+				@exportOutlines = false;
+				if args[5] == "true"
 					@exportOutlines = true;
 				end					
+				@outlineRGB = args[6];
+				@outlineWidth = args[7];
 				@exportInternalLines = false;
-				if args[5] == "true"
+				if args[8] == "true"
 					@exportInternalLines = true;
 				end
+				@dissectRGB = args[9];
+				@dissectWidth = args[10];
 				@exportOrphanLines = false;
-				if args[6] == "true"
+				if args[11] == "true"
 					@exportOrphanLines = true;
-				end				
-				@exportSvgType = args[7];
-				@lineWidth = args[8];
-				@exportAnnotations = false;
-				if args[9] == "true"
-					@exportAnnotations = true;
 				end
-				@annotationType = args[10];
-				@annotationHeight = args[11];
-				@outlineRGB = args[12]+","+args[13]+","+args[14];
-				@dissectRGB = args[15]+","+args[16]+","+args[17];
-				@orphanRGB = args[18]+","+args[19]+","+args[20];
-				@annotationRGB = args[21]+","+args[22]+","+args[23];
+				@orphanRGB = args[12];
+				@orphanWidth = args[13];
+				@exportAnnotations = false;
+				if args[14] == "true"
+					@exportAnnotations = true;
+				end			
+				@annotationRGB = args[15];
+				@annotationWidth = args[16];
+				@annotationType = args[17];
+				@annotationHeight = args[18];							
 				@execEditor = false;
-				if args[24] == "true"
+				if args[19] == "true"
 					@execEditor = true;
-					@svgEditor = args[25];
+					@svgEditor = args[20];
 				end
 				
 				# Store preferences
@@ -199,8 +206,7 @@ class SvgExport
 				Sketchup.active_model.set_attribute "foi_svg_export", "exportOutlines", @exportOutlines				
 				Sketchup.active_model.set_attribute "foi_svg_export", "exportEtch", @exportInternalLines	
 				Sketchup.active_model.set_attribute "foi_svg_export", "exportOrphans", @exportOrphanLines										
-				Sketchup.active_model.set_attribute "foi_svg_export", "exportSVG", @exportSvgType
-				Sketchup.active_model.set_attribute "foi_svg_export", "lineWidth", @lineWidth				
+				Sketchup.active_model.set_attribute "foi_svg_export", "exportSVG", @exportSvgType						
 				Sketchup.active_model.set_attribute "foi_svg_export", "exportAnnotations", @exportAnnotations
 				Sketchup.active_model.set_attribute "foi_svg_export", "annotationType", @annotationType
 				Sketchup.active_model.set_attribute "foi_svg_export", "annotationHeight", @annotationHeight
@@ -229,14 +235,11 @@ class SvgExport
 						
 				output_filename = UI.savepanel("Export to SVG", "", name);
 				
+				# Tidy filename path
 				if (output_filename)
 					name = output_filename.split('\\')
 					@svgFilename = name[0]
 					for i in 1...name.length
-						
-						# Adjust for Mac attaching ');' to filename
-						#name[i] = (name[i].split(')'))[0]
-						
 						@svgFilename  = @svgFilename+'/'+name[i]
 					end					
 				end
@@ -245,6 +248,11 @@ class SvgExport
 				d.execute_script(cmd);
 			}			
 			
+			# Set help callback
+			@dlg.add_action_callback("on_help") {|d,p|
+				UI.openURL("http://extensions.sketchup.com/en/content/svg-outline-plugin")
+			}
+			
 			# Set SVG editor configure callback function
 			@dlg.add_action_callback("on_svg_editor_configure") {|d,p| 							
 				name = p.split('/')
@@ -252,20 +260,18 @@ class SvgExport
 						
 				@svgEditor = UI.openpanel "Select your SVG editor", "", "*"						
 				
+				# Tidy filename path				
 				if (@svgEditor)
 					name = @svgEditor.split('\\')
 					@svgEditor = name[0]
-					for i in 1...name.length
-						
-						# Adjust for Mac attaching ');' to filename
-						#name[i] = (name[i].split(')'))[0]
-						
+					for i in 1...name.length										
 						@svgEditor  = @svgEditor+'/'+name[i]
 					end					
 				end
-												
-				cmd = "setSvgEditor('"+@svgEditor+"')";				
-				d.execute_script(cmd);
+				if (@svgEditor)						
+					cmd = "setSvgEditor('"+@svgEditor+"')";				
+					d.execute_script(cmd);
+				end
 			}				
 			
 			# Show the dlg
@@ -300,9 +306,15 @@ class SvgExport
 				if (@svgEditor)
 					ed = @svgEditor;
 				end
-				cmd = "setDefaults('"+@svgFilename+","+@paperBorder+","+@units+","+hiddenCheck+","+outlineCheck+","+linesCheck+","+orphansCheck+","+
-					@exportSvgType+","+@lineWidth+","+textCheck+","+@annotationType+","+@annotationHeight+","+
-					@outlineRGB+","+@dissectRGB+","+@orphanRGB+","+@annotationRGB+","+exec+","+ed+"')";				
+								
+				cmd = "setDefaults('"+@svgFilename+","+@paperBorder+","+
+					@units+","+@exportSvgType+","+hiddenCheck+","+
+					outlineCheck+","+@outlineRGB+","+@outlineWidth+","+
+					linesCheck+","+@dissectRGB+","+@dissectWidth+","+
+					orphansCheck+","+@orphanRGB+","+@orphanWidth+","+
+					textCheck+","+@annotationRGB+","+@annotationWidth+","+
+					@annotationType+","+@annotationHeight+","+exec+","+ed+"')";
+				
 				@dlg.execute_script(cmd);
 			}
 			@dlg.set_on_close { @dlgOpen = false; }	
@@ -588,7 +600,7 @@ class SvgExport
 							@textEntities[txt][5] = i
 							
 							# Set point for text in SVG
-							insertPoint = FlightsOfIdeasCommon.project_2d_position (transformMatrix.inverse*@textEntities[txt][1], transformMatrix, group[0])
+							insertPoint = FlightsOfIdeasCommon.project_2d_position(transformMatrix.inverse*@textEntities[txt][1], transformMatrix, group[0])
 							@textEntities[txt][6] = insertPoint[0].to_mm
 							@textEntities[txt][7] = insertPoint[1].to_mm
 						end						
@@ -613,7 +625,7 @@ class SvgExport
 					for k in 0...vertices.length
 						
 						# Calculate 2D point
-						point = FlightsOfIdeasCommon.project_2d_point (vertices[k], transformMatrix, group[0])
+						point = FlightsOfIdeasCommon.project_2d_point(vertices[k], transformMatrix, group[0])
 
 						# Store point
 						point = point.to_a
@@ -665,8 +677,8 @@ class SvgExport
 			elsif group[i].typename == "Edge" 
 				
 				# Calculate 2D point
-				pointS = FlightsOfIdeasCommon.project_2d_point (group[i].start, transformMatrix, group[0])
-				pointE = FlightsOfIdeasCommon.project_2d_point (group[i].end, transformMatrix, group[0])
+				pointS = FlightsOfIdeasCommon.project_2d_point(group[i].start, transformMatrix, group[0])
+				pointE = FlightsOfIdeasCommon.project_2d_point(group[i].end, transformMatrix, group[0])
 							
 				# Store points		
 				@pointArrayGFXY[groupIndex][i] = Array.new(1)		
@@ -726,7 +738,6 @@ class SvgExport
 	# Write the current selected faces to an SVG file
 	#######################################################	
 	def create_svg()
-		
 		#  Check if file already exists		
 		if File.exist?(@svgFilename)
 			code = UI.messagebox "File exists, are you sure you want to overwrite?", MB_OKCANCEL, "Error"		
@@ -839,14 +850,14 @@ class SvgExport
 		
 		# Write text to file
 		if (@exportAnnotations)
-			@svgFile.write "<g id=\"text_annotations\" font-size=\""+@annotationHeight.to_s+"\" stroke=\"rgb("+@annotationRGB+")\" stroke-width=\""+@lineWidth.to_s+"\">\n"			
+			@svgFile.write "<g id=\"text_annotations\" font-size=\""+@annotationHeight.to_s+"\" stroke=\"#"+@annotationRGB+"\" stroke-width=\""+@annotationWidth.to_s+"\">\n"			
 			for txt in 0...@textEntities.length
 						
 				# If a text entitiy references this face
 				if (@textEntities[txt][3])
 					if (@annotationType == "SVG")
 						lines = @textEntities[txt][0].split("\n");
-						@svgFile.write "<text style=\"fill:none\" stroke=\"rgb("+@annotationRGB+")\" stroke-width=\""+@lineWidth.to_s+"\" x=\""+@textEntities[txt][6].to_s+"\" y=\""+@textEntities[txt][7].to_s+"\">"
+						@svgFile.write "<text style=\"fill:none\" stroke=\"#"+@annotationRGB+"\" stroke-width=\""+@annotationWidth.to_s+"\" x=\""+@textEntities[txt][6].to_s+"\" y=\""+@textEntities[txt][7].to_s+"\">"
 						for line in 0...lines.length
 							lines[line] = lines[line].sub(/\&/) {|s| s = "&amp;"}
 							lines[line] = lines[line].sub(/\"/) {|s| s = "&quot;"}
@@ -862,7 +873,7 @@ class SvgExport
 					else
 						svg = LaserScript.getSvgText(@textEntities[txt][0]) 
 						scale = @annotationHeight.to_f/LaserScript.getHeight
-						svg = "  <g transform=\"translate("+@textEntities[txt][6].to_s+","+@textEntities[txt][7].to_s+") scale("+scale.to_s+")\" fill=\"none\" stroke=\"rgb("+@annotationRGB+")\" stroke-width=\""+(@lineWidth.to_f/scale).to_s+"\" stroke-miterlimit=\"4\" stroke-dasharray=\"none\" stroke-linejoin=\"round\" stroke-linecap=\"round\">\n"+svg
+						svg = "  <g transform=\"translate("+@textEntities[txt][6].to_s+","+@textEntities[txt][7].to_s+") scale("+scale.to_s+")\" fill=\"none\" stroke=\"#"+@annotationRGB+"\" stroke-width=\""+(@annotationWidth.to_f/scale).to_s+"\" stroke-miterlimit=\"4\" stroke-dasharray=\"none\" stroke-linejoin=\"round\" stroke-linecap=\"round\">\n"+svg
 						svg = svg+"  </g>\n";	
 						@svgFile.write svg
 					end
@@ -873,19 +884,13 @@ class SvgExport
 	  	  
 		# Group
 		faceNumber=0
-		
-		# Stroke width
-		strokeWidth = 0.5
-		if @units == "in"
-			strokeWidth = 0.5*0.0393700787
-		end
-		
+			
 		if @exportSvgType == "lines"
 			
 			# Write each face as a series of grouped lines
 			for g in 0...@pointArrayGFXY.length
 				for f in 0...@pointArrayGFXY[g].length
-					@svgFile.write "  <g id=\"face"+faceNumber.to_s+"\" fill=\"none\" stroke=\"rgb("+@outlineRGB+")\" stroke-width=\""+@lineWidth.to_s+"\" stroke-miterlimit=\"4\" stroke-dasharray=\"none\" stroke-linejoin=\"round\" stroke-linecap=\"round\">\n"
+					@svgFile.write "  <g id=\"face"+faceNumber.to_s+"\" fill=\"none\" stroke=\"#"+@outlineRGB+"\" stroke-width=\""+@outlineWidth.to_s+"\" stroke-miterlimit=\"4\" stroke-dasharray=\"none\" stroke-linejoin=\"round\" stroke-linecap=\"round\">\n"
 					for i in 0...@pointArrayGFXY[g][f].length											
 							
 						# For points in loop
@@ -894,11 +899,11 @@ class SvgExport
 								
 								# If internal line (etch)
 								if @pointArrayGFXY[g][f][i][j][2] == 2.0 and @exportInternalLines
-									@svgFile.write "    <line stroke=\"rgb("+@dissectRGB+")\" x1=\""+@pointArrayGFXY[g][f][i][j][0].to_s+"\" y1=\""+@pointArrayGFXY[g][f][i][j][1].to_s+"\" x2=\""+@pointArrayGFXY[g][f][i][j+1][0].to_s+"\" y2=\""+@pointArrayGFXY[g][f][i][j+1][1].to_s+"\"/>\n"									
+									@svgFile.write "    <line stroke-width=\""+@dissectWidth.to_s+"\" stroke=\"#"+@dissectRGB+"\" x1=\""+@pointArrayGFXY[g][f][i][j][0].to_s+"\" y1=\""+@pointArrayGFXY[g][f][i][j][1].to_s+"\" x2=\""+@pointArrayGFXY[g][f][i][j+1][0].to_s+"\" y2=\""+@pointArrayGFXY[g][f][i][j+1][1].to_s+"\"/>\n"									
 								elsif @pointArrayGFXY[g][f][i][j][2] == 1.0
 									@svgFile.write "    <line x1=\""+@pointArrayGFXY[g][f][i][j][0].to_s+"\" y1=\""+@pointArrayGFXY[g][f][i][j][1].to_s+"\" x2=\""+@pointArrayGFXY[g][f][i][j+1][0].to_s+"\" y2=\""+@pointArrayGFXY[g][f][i][j+1][1].to_s+"\"/>\n"
 								elsif @pointArrayGFXY[g][f][i][j][2] == 3.0 and @exportOrphanLines	
-									@svgFile.write "    <line stroke=\"rgb("+@orphanRGB+")\" x1=\""+@pointArrayGFXY[g][f][i][j][0].to_s+"\" y1=\""+@pointArrayGFXY[g][f][i][j][1].to_s+"\" x2=\""+@pointArrayGFXY[g][f][i][j+1][0].to_s+"\" y2=\""+@pointArrayGFXY[g][f][i][j+1][1].to_s+"\"/>\n"																		
+									@svgFile.write "    <line stroke-width=\""+@orphanWidth.to_s+"\" stroke=\"#"+@orphanRGB+"\" x1=\""+@pointArrayGFXY[g][f][i][j][0].to_s+"\" y1=\""+@pointArrayGFXY[g][f][i][j][1].to_s+"\" x2=\""+@pointArrayGFXY[g][f][i][j+1][0].to_s+"\" y2=\""+@pointArrayGFXY[g][f][i][j+1][1].to_s+"\"/>\n"																		
 								end
 							end
 						end
@@ -906,11 +911,11 @@ class SvgExport
 						# Join to start						
 						if @pointArrayGFXY[g][f][i][j+1][2] > 0.0
 							if @pointArrayGFXY[g][f][i][j+1][2] == 2.0 and @exportInternalLines								
-								@svgFile.write "    <line stroke=\"rgb("+@dissectRGB+")\" x1=\""+@pointArrayGFXY[g][f][i][j+1][0].to_s+"\" y1=\""+@pointArrayGFXY[g][f][i][j+1][1].to_s+"\" x2=\""+@pointArrayGFXY[g][f][i][0][0].to_s+"\" y2=\""+@pointArrayGFXY[g][f][i][0][1].to_s+"\"/>\n"
+								@svgFile.write "    <line stroke-width=\""+@dissectWidth.to_s+"\" stroke=\"#"+@dissectRGB+"\" x1=\""+@pointArrayGFXY[g][f][i][j+1][0].to_s+"\" y1=\""+@pointArrayGFXY[g][f][i][j+1][1].to_s+"\" x2=\""+@pointArrayGFXY[g][f][i][0][0].to_s+"\" y2=\""+@pointArrayGFXY[g][f][i][0][1].to_s+"\"/>\n"
 							elsif @pointArrayGFXY[g][f][i][j+1][2] == 1.0
 								@svgFile.write "    <line x1=\""+@pointArrayGFXY[g][f][i][j+1][0].to_s+"\" y1=\""+@pointArrayGFXY[g][f][i][j+1][1].to_s+"\" x2=\""+@pointArrayGFXY[g][f][i][0][0].to_s+"\" y2=\""+@pointArrayGFXY[g][f][i][0][1].to_s+"\"/>\n"
 							elsif @pointArrayGFXY[g][f][i][j+1][2] == 3.0 and @exportOrphanLines							
-								@svgFile.write "    <line stroke=\"rgb("+@orphanRGB+")\" x1=\""+@pointArrayGFXY[g][f][i][j+1][0].to_s+"\" y1=\""+@pointArrayGFXY[g][f][i][j+1][1].to_s+"\" x2=\""+@pointArrayGFXY[g][f][i][0][0].to_s+"\" y2=\""+@pointArrayGFXY[g][f][i][0][1].to_s+"\"/>\n"
+								@svgFile.write "    <line stroke-width=\""+@orphanWidth.to_s+"\" stroke=\"#"+@orphanRGB+"\" x1=\""+@pointArrayGFXY[g][f][i][j+1][0].to_s+"\" y1=\""+@pointArrayGFXY[g][f][i][j+1][1].to_s+"\" x2=\""+@pointArrayGFXY[g][f][i][0][0].to_s+"\" y2=\""+@pointArrayGFXY[g][f][i][0][1].to_s+"\"/>\n"
 							end								
 						end															
 					end
@@ -924,7 +929,7 @@ class SvgExport
 			for g in 0...@pointArrayGFXY.length
 				for f in 0...@pointArrayGFXY[g].length
 					@svgFile.write "  <path id=\"face"+faceNumber.to_s+"-cut\"\n"
-					@svgFile.write " style=\"fill:none;stroke:rgb("+@outlineRGB+");stroke-width:"+@lineWidth.to_s+";stroke-miterlimit:4;stroke-dasharray:none;stroke-linejoin:round;stroke-linecap:round\"\n"
+					@svgFile.write " style=\"fill:none;stroke:#"+@outlineRGB+";stroke-width:"+@outlineWidth.to_s+";stroke-miterlimit:4;stroke-dasharray:none;stroke-linejoin:round;stroke-linecap:round\"\n"
 					@svgFile.write "        d=\""
 					for i in 0...@pointArrayGFXY[g][f].length
 						@svgFile.write "M "+@pointArrayGFXY[g][f][i][0][0].to_s+","+@pointArrayGFXY[g][f][i][0][1].to_s+" "				
@@ -954,7 +959,7 @@ class SvgExport
 				for g in 0...@pointArrayGFXY.length
 					for f in 0...@pointArrayGFXY[g].length
 						@svgFile.write "  <path id=\"face"+faceNumber.to_s+"-interior\"\n"
-						@svgFile.write " style=\"fill:none;stroke:rgb("+@dissectRGB+");stroke-width:"+@lineWidth.to_s+";stroke-miterlimit:4;stroke-dasharray:none;stroke-linejoin:round;stroke-linecap:round\"\n"
+						@svgFile.write " style=\"fill:none;stroke:#"+@dissectRGB+";stroke-width:"+@dissectWidth.to_s+";stroke-miterlimit:4;stroke-dasharray:none;stroke-linejoin:round;stroke-linecap:round\"\n"
 						@svgFile.write "        d=\""
 						for i in 0...@pointArrayGFXY[g][f].length
 							@svgFile.write "M "+@pointArrayGFXY[g][f][i][0][0].to_s+","+@pointArrayGFXY[g][f][i][0][1].to_s+" "				
@@ -985,7 +990,7 @@ class SvgExport
 				for g in 0...@pointArrayGFXY.length
 					for f in 0...@pointArrayGFXY[g].length
 						@svgFile.write "  <path id=\"face"+faceNumber.to_s+"-interior\"\n"
-						@svgFile.write " style=\"fill:none;stroke:rgb("+@orphanRGB+");stroke-width:"+@lineWidth.to_s+";stroke-miterlimit:4;stroke-dasharray:none;stroke-linejoin:round;stroke-linecap:round\"\n"
+						@svgFile.write " style=\"fill:none;stroke:#"+@orphanRGB+";stroke-width:"+@orphanWidth.to_s+";stroke-miterlimit:4;stroke-dasharray:none;stroke-linejoin:round;stroke-linecap:round\"\n"
 						@svgFile.write "        d=\""
 						for i in 0...@pointArrayGFXY[g][f].length
 							@svgFile.write "M "+@pointArrayGFXY[g][f][i][0][0].to_s+","+@pointArrayGFXY[g][f][i][0][1].to_s+" "				

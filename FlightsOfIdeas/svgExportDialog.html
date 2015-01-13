@@ -2,11 +2,12 @@
 <meta http-equiv="Content-Type" content="text/html" />
 <link href="flightsOfIdeasStyle.css" rel="stylesheet" type="text/css" />
 <title>SVG Parameters (Flights of Ideas)</title>
+<script type="text/javascript" src="jscolor/jscolor.js"></script>
 <script language="javascript">
 <!--
 //###########################################################
 //#
-//#    Scalable Vector Graphics (SVG) from Google Sketchup Faces
+//#    Scalable Vector Graphics (SVG) from Google Skdissectup Faces
 //#    Copyright (C) 2009 Simon Beard
 //#
 //#    This program is free software: you can redistribute it and/or modify
@@ -24,7 +25,7 @@
 //#
 //###########################################################
 
-var previousUnits="";
+var previousUnits="mm";
 var svgEditorExec="";
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -50,38 +51,57 @@ function onOk()
 {
 	exportAs = "paths";
 	hidden = "false";
-	etch = "false";
+	outline = "false";
+	dissect = "false";
 	orphans = "false";
-	text="false";
-	textAs="scipt";
-	outline = "false";	
-	execEditor = "false"
-	editor = "";	
-
+	text = "false";
+	textAs = "script";
+	outline = "false";
+	execEditor = "false";
+	editor = "";
 	if (document.getElementById("exportOutline").checked)		
 		outline = "true";
 	if (document.getElementById("exportHidden").checked)		
 		hidden = "true";
-	if (document.getElementById("exportLines").checked)		
-		etch = "true";	
+	if (document.getElementById("exportDissect").checked)		
+		dissect = "true";	
 	if (document.getElementById("exportOrphans").checked)		
 		orphans = "true";	
 	if (document.getElementById("exportText").checked)		
 		text = "true";	
-	if (document.getElementById("exporttype").selectedIndex == 0)
+	if (document.getElementById("exportType").selectedIndex == 1)
 		exportAs = "lines";
-	if (document.getElementById("texttype").selectedIndex == 0)
-		textAs = "SVG";	
+	if (document.getElementById("textType").selectedIndex == 0)
+		textAs = "SVG";		
 	if (document.getElementById("svgEditor").checked)
 		execEditor = "true";
-		editor = document.getElementById("svgEditorPath").value;
-		
-	window.location='skp:on_ok@'+document.getElementById("svgFilename").value+","+document.getElementById("paperBorder").value+","+previousUnits+","+hidden+","+outline+","+etch+","+orphans+","+
-		exportAs+","+document.getElementById("lineWidth").value+","+text+","+textAs+","+document.getElementById("textHeight").value+","+
-		document.getElementById("outlineRed").value+","+document.getElementById("outlineGreen").value+","+document.getElementById("outlineBlue").value+","+
-		document.getElementById("dissectRed").value+","+document.getElementById("dissectGreen").value+","+document.getElementById("dissectBlue").value+","+
-		document.getElementById("orphanRed").value+","+document.getElementById("orphanGreen").value+","+document.getElementById("orphanBlue").value+","+
-		document.getElementById("textRed").value+","+document.getElementById("textGreen").value+","+document.getElementById("textBlue").value+","+execEditor+","+editor;
+	
+	editor = document.getElementById("svgEditorPath").value;				
+	
+	newlocation = 'skp:on_ok@' 
+		+ document.getElementById("svgFilename").value + ","
+		+ document.getElementById("paperBorder").value + "," 
+		+ previousUnits + ","
+		+ exportAs + ","
+		+ hidden + ","
+		+ outline + ","
+		+ document.getElementById("outlineColour").value + ","
+		+ document.getElementById("outlineLineWidth").value + ","
+		+ dissect + ","
+		+ document.getElementById("dissectColour").value + ","
+		+ document.getElementById("dissectLineWidth").value + ","
+		+ orphans + ","
+		+ document.getElementById("orphanColour").value + ","
+		+ document.getElementById("orphanLineWidth").value + ","
+		+ text + ","
+		+ document.getElementById("textColour").value + ","
+		+ document.getElementById("textLineWidth").value + ","
+		+ textAs + ","
+		+ document.getElementById("textHeight").value + ","
+		+ execEditor + ","
+		+ editor;
+
+	window.location = newlocation;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -93,17 +113,45 @@ function onCancel()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
+// Called for help
+//////////////////////////////////////////////////////////////////////////////////////////////////
+function onHelp()
+{
+	window.location='skp:on_help';
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
 // Called when changing units
 //////////////////////////////////////////////////////////////////////////////////////////////////
 function changeUnits()
 {
-	if ((document.getElementById("inches").selected) && (previousUnits=="mm")) {	
-		document.getElementById("borderLabel").innerHTML="Border (in):"
-		document.getElementById("textHeightLabel").innerHTML="Annotation Height (in):"
+	if ((document.getElementById("inches").selected) && (previousUnits == "mm")) {	
+		document.getElementById("borderUnits").innerHTML="in";	
+		document.getElementById("outlineUnits").innerHTML="in";	
+		document.getElementById("orphanUnits").innerHTML="in";	
+		document.getElementById("dissectUnits").innerHTML="in";			
+		document.getElementById("textLineWidthUnits").innerHTML="in";	
+		document.getElementById("textHeightUnits").innerHTML="in";	
+		document.getElementById("paperBorder").value = document.getElementById("paperBorder").value*0.0393700787402;
+		document.getElementById("outlineLineWidth").value = document.getElementById("outlineLineWidth").value*0.0393700787402;
+		document.getElementById("dissectLineWidth").value = document.getElementById("dissectLineWidth").value*0.0393700787402;
+		document.getElementById("orphanLineWidth").value = document.getElementById("orphanLineWidth").value*0.0393700787402;
+		document.getElementById("textLineWidth").value = document.getElementById("textLineWidth").value*0.0393700787402;
+		document.getElementById("textHeight").value = document.getElementById("textHeight").value*0.0393700787402;
 		previousUnits	="in";
-	} else if ((document.getElementById("millimeters").selected) && (previousUnits=="in")) {
-		document.getElementById("borderLabel").innerHTML="Border (mm):"
-		document.getElementById("textHeightLabel").innerHTML="Annotation Height (mm):"
+	} else if ((document.getElementById("millimeters").selected) && (previousUnits == "in")) {
+		document.getElementById("borderUnits").innerHTML="mm";		
+		document.getElementById("outlineUnits").innerHTML="mm";	
+		document.getElementById("orphanUnits").innerHTML="mm";	
+		document.getElementById("dissectUnits").innerHTML="mm";			
+		document.getElementById("textLineWidthUnits").innerHTML="mm";	
+		document.getElementById("textHeightUnits").innerHTML="mm";	
+		document.getElementById("paperBorder").value = document.getElementById("paperBorder").value/0.0393700787402;
+		document.getElementById("outlineLineWidth").value = document.getElementById("outlineLineWidth").value/0.0393700787402;
+		document.getElementById("dissectLineWidth").value = document.getElementById("dissectLineWidth").value/0.0393700787402;
+		document.getElementById("orphanLineWidth").value = document.getElementById("orphanLineWidth").value/0.0393700787402;
+		document.getElementById("textLineWidth").value = document.getElementById("textLineWidth").value/0.0393700787402;
+		document.getElementById("textHeight").value = document.getElementById("textHeight").value/0.0393700787402;
 		previousUnits	="mm";
 	}
 }
@@ -112,107 +160,57 @@ function changeUnits()
 // Called to set dlg defaults
 //////////////////////////////////////////////////////////////////////////////////////////////////
 function setDefaults(defaults)
-{
+{	
+	document.getElementById("exportHidden").checked = false;
+	document.getElementById("exportOutline").checked = true;
+	document.getElementById("exportdissect").checked = true;
+	document.getElementById("exportOrphans").checked = true;
+	document.getElementById("exportText").checked = false;	
+	previousUnits="mm";		
+
 	args = defaults.split(',');
 	document.getElementById("svgFilename").value = args[0];
 	document.getElementById("paperBorder").value = args[1];
-	document.getElementById("exportHidden").checked = false;
-	document.getElementById("exportOutline").checked = false;
-	document.getElementById("exportLines").checked = false;
-	document.getElementById("exportOrphans").checked = false;
-	document.getElementById("exportText").checked = false;
-	document.getElementById("borderLabel").innerHTML="Border (mm):"
-	document.getElementById("textHeightLabel").innerHTML="Annotation Height (mm):"
-	previousUnits="mm";
+	
 	if (args[2] == "in") {		
 		document.getElementById("inches").selected=true;
 		changeUnits();
 	}
-	if (args[3] == "true")
-		document.getElementById("exportHidden").checked = true;	
+	
+	document.getElementById("exportType").selectedIndex = 0;
+	if (args[3] == "lines")
+		document.getElementById("exportType").selectedIndex = 1;	
+	
 	if (args[4] == "true")
-		document.getElementById("exportOutline").checked = true;		
+		document.getElementById("exportHidden").checked = true;	
+	
 	if (args[5] == "true")
-		document.getElementById("exportLines").checked = true;
-	if (args[6] == "true")
-		document.getElementById("exportOrphans").checked = true;		
-	document.getElementById("exporttype").selectedIndex = 1;
-	if (args[7] == "lines")
-		document.getElementById("exporttype").selectedIndex = 0;	
-	document.getElementById("LineWidth").value = args[8];
-	if (args[9] == "true")
+		document.getElementById("exportOutline").checked = true;
+	document.getElementById("outlineColour").value = args[6];
+	document.getElementById("outlineLineWidth").value = args[7];
+	
+	if (args[8] == "true")
+		document.getElementById("exportDissect").checked = true;
+	document.getElementById("dissectColour").value = args[9];		
+	document.getElementById("dissectLineWidth").value = args[10];
+		
+	if (args[11] == "true")
+		document.getElementById("exportOrphans").checked = true;
+	document.getElementById("orphanColour").value = args[12];		
+	document.getElementById("orphanLineWidth").value = args[13];		
+			
+	if (args[14] == "true")
 		document.getElementById("exportText").checked = true;
+	document.getElementById("textColour").value = args[15];
+	document.getElementById("textLineWidth").value = args[16];			
 	document.getElementById("textType").selectedIndex = 1;	
-	if (args[10] == "SVG")
-		document.getElementById("texttype").selectedIndex = 0;		
-	document.getElementById("textHeight").value = args[11];	
-	document.getElementById("outlineRed").value = args[12];
-	document.getElementById("outlineGreen").value = args[13];
-	document.getElementById("outlineBlue").value = args[14];
-	document.getElementById("dissectRed").value = args[15];
-	document.getElementById("dissectGreen").value = args[16];
-	document.getElementById("dissectBlue").value = args[17];	
-	document.getElementById("orphanRed").value = args[18];
-	document.getElementById("orphanGreen").value = args[19];
-	document.getElementById("orphanBlue").value = args[20];	
-	document.getElementById("textRed").value = args[21];
-	document.getElementById("textGreen").value = args[22];
-	document.getElementById("textBlue").value = args[23];	
-	document.getElementById("svgEditor").checked = false;
-	if (args[24] == "true")
+	if (args[17] == "SVG")
+		document.getElementById("textType").selectedIndex = 0;		
+	document.getElementById("textHeight").value = args[18];
+		
+	if (args[19] == "true")
 		document.getElementById("svgEditor").checked = true;	
-	document.getElementById("svgEditorPath").value = args[25];	
-	updateColour();
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////
-// Called to error check and update colours and fields for the dialog box
-//////////////////////////////////////////////////////////////////////////////////////////////////
-function updateColour()
-{	
-	or = document.getElementById("outlineRed").value;
-	og = document.getElementById("outlineGreen").value;
-	ob = document.getElementById("outlineBlue").value;
-	dr = document.getElementById("dissectRed").value;
-	dg = document.getElementById("dissectGreen").value;
-	db = document.getElementById("dissectBlue").value;
-	orr = document.getElementById("orphanRed").value;
-	org = document.getElementById("orphanGreen").value;
-	orb = document.getElementById("orphanBlue").value;
-	tr = document.getElementById("textRed").value;
-	tg = document.getElementById("textGreen").value;
-	tb = document.getElementById("textBlue").value;
-
-	if (or > 255) { or = 255; }  else if (or < 0) { or = 0; }
-	if (og > 255) { og = 255; }  else if (og < 0) { og = 0; }
-	if (ob > 255) { ob = 255; }  else if (ob < 0) { ob = 0; }
-	if (dr > 255) { dr = 255; }  else if (dr < 0) { dr = 0; }
-	if (dg > 255) { dg = 255; }  else if (dg < 0) { dg = 0; }
-	if (db > 255) { db = 255; }  else if (db < 0) { db = 0; }
-	if (orr > 255) { orr = 255; }  else if (orr < 0) { orr = 0; }
-	if (org > 255) { org = 255; }  else if (org < 0) { org = 0; }
-	if (orb > 255) { orb = 255; }  else if (orb < 0) { orb = 0; }
-	if (tr > 255) { tr = 255; }  else if (tr < 0) { tr = 0; }
-	if (tg > 255) { tg = 255; }  else if (tg < 0) { tg = 0; }
-	if (tb > 255) { tb = 255; }  else if (tb < 0) { tb = 0; }
-	
-	document.getElementById("outlineColour").style.backgroundColor="rgb("+or+","+og+","+ob+")";
-	document.getElementById("dissectColour").style.backgroundColor="rgb("+dr+","+dg+","+db+")";
-	document.getElementById("orphanColour").style.backgroundColor="rgb("+orr+","+org+","+orb+")";
-	document.getElementById("textColour").style.backgroundColor="rgb("+tr+","+tg+","+tb+")";
-	
-	document.getElementById("outlineRed").value = or;
-	document.getElementById("outlineGreen").value = og;
-	document.getElementById("outlineBlue").value = ob;
-	document.getElementById("dissectRed").value = dr;
-	document.getElementById("dissectGreen").value = dg;
-	document.getElementById("dissectBlue").value = db;
-	document.getElementById("orphanRed").value = orr;
-	document.getElementById("orphanGreen").value = org;
-	document.getElementById("orphanBlue").value = orb;
-	document.getElementById("textRed").value = tr;
-	document.getElementById("textGreen").value = tg;
-	document.getElementById("textBlue").value = tb;	
+	document.getElementById("svgEditorPath").value = args[20];		
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -232,7 +230,7 @@ function setSvgEditor(svgeditor)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-// Sketchup functions
+// Setup functions
 //////////////////////////////////////////////////////////////////////////////////////////////////
 function sizeWindow()
 {
@@ -251,7 +249,6 @@ function doLoad()
 	}
 	updateColour();
 }
--->
 </script>
 <link href="./flightsOfIdeas.css" rel="stylesheet" type="text/css" />
 </head>
@@ -268,133 +265,127 @@ function doLoad()
 	</tr>
 	<tr>
 		<td colspan="2">
+			<hr style="width:10%;text-align:left;margin-left:0"/>	
 			<table style="width: 100%">
 				<tr>
-					<td width="20%"><p class="heading-green">Output File:</p></td>
-					<td width="70%"><input class="text" style="width: 100%" id="svgFilename" type="text" value="flightsofideas.svg"/></td>
-					<td width="10%"><input class="button" type="button" value="..." onClick="onFileSave()"/></td>			
+					<td width="4.5%"></td>
+					<td width="25%"><p class="heading-green">Save SVG to the following file:</p></td>
+					<td width="62%">&nbsp;<input class="text" style="width: 100%" id="svgFilename" type="text" value="flightsofideas.svg"/></td>
+					<td width="8%"><input class="button" type="button" value="..." onClick="onFileSave()"/></td>			
+					<td width="4.5%"></td>
 				</tr>
 			</table>
+			<hr style="width:10%;text-align:left;margin-left:0"/>		
 			<table style="width: 100%">
 				<tr>
+					<td width="4.5%"></td>
+					<td width="25%"><p class="heading-green">Group exported face(s) as: </p></td>
+					<td width="25%"><select width="100%" id="exportType">									
+									<option id="paths">Paths...</option>
+									<option id="lines">Lines...</option>									
+								</select></td>
+					<td width="47.5%"></td>						
+				</tr>		
+			</table>								
+			<table style="width: 100%">
+				<tr>		
+					<td width="4.5%"></td>				
+					<td width="25%"><p class="heading-green">Measurements for file: </p></td>
+					<td width="25%"><select width="100%" onchange="changeUnits()" id="units">
+									<option id="millimeters">Millimeters...</option>
+									<option id="inches">Inches...</option>
+								</select></td>
+					<td width="47.5%"></td>						
+				</tr>	
+			</table>				
+			<table style="width: 100%">
+				<tr>		
+					<td width="4.5%"></td>
+					<td width="25%"><p class="heading-green" id="borderLabel">Page border:&nbsp;</p></td>
+					<td width="25%"><input class="text" style="width: 55px" id="paperBorder" type="text" value="10"/>&nbsp;<font class="green" id="borderUnits">mm</font></td>											
+					<td width="47.5%"></td>						
+				</tr>		
+			</table>				
+			<hr style="width:10%;text-align:left;margin-left:0"/>	
+			<table style="width: 100%">
+				<tr>
+					<td width="4.5%"></td>
+					<td width="25%"><p class="heading-green"><input type="checkbox" id="exportHidden"/> Export hidden entities</p></td>					
+					<td width="13%"></td>
+					<td width="15%"></td>					
+					<td width="18%"></td>
 					<td width="20%"></td>
-					<td width="40%"><p class="heading-green"><input type="checkbox" id="exportHidden"/> Export Hidden Entities</p></td>					
-					<td width="40%"></td>
+					<td width="4.5%"></td>				
 				</tr>					
 			</table>				
 			<table style="width: 100%">
 				<tr>
+					<td width="4.5%"></td>
+					<td width="25%"><p class="heading-green"><input checked="true" type="checkbox" id="exportOutline"/> Export outlines of face(s) -</p></td>
+					<td width="13%"><p class="heading-green">Colour:&nbsp;<input class="color" value="0000FF" style="width: 55px;" id="outlineColour"></p></td>
+					<td width="15%"><p class="heading-green" id="borderLabel">Width:&nbsp;<input class="text" style="width: 55px" id="outlineLineWidth" type="text" value="1"/>&nbsp;<font class="green" id="outlineUnits">mm</font></p></td>
+					<td width="18%"></td>
 					<td width="20%"></td>
-					<td width="40%"><p class="heading-green"><input type="checkbox" id="exportOutline"/> Export Outlines of Face(s)</p></td>
-					<td width="12%">r <input class="text" style="width: 50%" id="outlineRed" type="text" value="0" onkeyup="updateColour();"/></td>
-					<td width="12%">g <input class="text" style="width: 50%" id="outlineGreen" type="text" value="0" onkeyup="updateColour();"/></td>
-					<td width="12%">b <input class="text" style="width: 50%" id="outlineBlue" type="text" value="255" onkeyup="updateColour();"/></td>
-					<td width="4%" id="outlineColour"></td>
+					<td width="4.5%"></td>
 				</tr>					
 			</table>						
 			<table style="width: 100%">
 				<tr>
+					<td width="4.5%"></td>
+					<td width="25%"><p class="heading-green"><input checked="true" type="checkbox" id="exportDissect"/> Export lines dissecting face(s) -</p></td>
+					<td width="13%"><p class="heading-green">Colour:&nbsp;<input class="color" value="FF0000" style="width: 55px;" id="dissectColour"></p></td>
+					<td width="15%"><p class="heading-green" id="borderLabel">Width:&nbsp;<input class="text" style="width: 55px" id="dissectLineWidth" type="text" value="1"/>&nbsp;<font class="green" id="dissectUnits">mm</font></p></td>					
+					<td width="18%"></td>
 					<td width="20%"></td>
-					<td width="40%"><p class="heading-green"><input type="checkbox" id="exportLines"/> Export Lines Dissecting Face(s)</p></td>
-					<td width="12%">r <input class="text" style="width: 50%" id="dissectRed" type="text" value="255" onkeyup="updateColour();"/></td>
-					<td width="12%">g <input class="text" style="width: 50%" id="dissectGreen" type="text" value="0" onkeyup="updateColour();"/></td>
-					<td width="12%">b <input class="text" style="width: 50%" id="dissectBlue" type="text" value="0" onkeyup="updateColour();"/></td>
-					<td width="4%" id="dissectColour"></td>
+					<td width="4.5%"></td>
 				</tr>					
 			</table>
 			<table style="width: 100%">
 				<tr>
+					<td width="4.5%"></td>
+					<td width="25%"><p class="heading-green"><input checked="true" type="checkbox" id="exportOrphans"/> Export lines on face(s) -</p></td>
+					<td width="13%"><p class="heading-green">Colour:&nbsp;<input class="color" value="00FF00" style="width: 55px;" id="orphanColour"></p></td>
+					<td width="15%"><p class="heading-green" id="borderLabel">Width:&nbsp;<input class="text" style="width: 55px" id="orphanLineWidth" type="text" value="1"/>&nbsp;<font class="green" id="orphanUnits">mm</font></p></td>					
+					<td width="18%"></td>
 					<td width="20%"></td>
-					<td width="40%"><p class="heading-green"><input type="checkbox" id="exportOrphans"/> Export Lines on Face(s)</p></td>
-					<td width="12%">r <input class="text" style="width: 50%" id="orphanRed" type="text" value="0" onkeyup="updateColour();"/></td>
-					<td width="12%">g <input class="text" style="width: 50%" id="orphanGreen" type="text" value="255" onkeyup="updateColour();"/></td>
-					<td width="12%">b <input class="text" style="width: 50%" id="orphanBlue" type="text" value="0" onkeyup="updateColour();"/></td>
-					<td width="4%" id="orphanColour"></td>
+					<td width="4.5%"></td>
 				</tr>					
 			</table>	
 			<table style="width: 100%">
 				<tr>
-					<td width="20%"></td>
-					<td width="40%"><p class="heading-green"><input type="checkbox" id="exportText"/> Export Annotations for Face(s)</p></td>
-					<td width="12%">r <input class="text" style="width: 50%" id="textRed" type="text" value="255" onkeyup="updateColour();"/></td>
-					<td width="12%">g <input class="text" style="width: 50%" id="textGreen" type="text" value="0" onkeyup="updateColour();"/></td>
-					<td width="12%">b <input class="text" style="width: 50%" id="textBlue" type="text" value="0" onkeyup="updateColour();"/></td>
-					<td width="4%" id="textColour"></td>
+					<td width="4.5%"></td>
+					<td width="25%"><p class="heading-green"><input type="checkbox" id="exportText"/> Export annotations for face(s) -</p></td>
+					<td width="13%"><p class="heading-green">Colour:&nbsp;<input class="color" value="000000" style="width: 55px;" id="textColour"></p></td>
+					<td width="15%"><p class="heading-green" id="borderLabel">Width:&nbsp;<input class="text" style="width: 55px" id="textLineWidth" type="text" value="1"/>&nbsp;<font class="green" id="textLineWidthUnits">mm</font></p></td>										
+					<td width="18%"><p class="heading-green">As: <select width="80%" id="textType">
+														<option id="font">SVG Text...</option>
+														<option id="script">Laser Script Drawing...</option>
+													</select></p>	
+					</td>
+					<td width="20%"><p class="heading-green">Height: <input class="text" style="width: 55px" id="textHeight" type="text" value="10"/>&nbsp;<font class="green" id="textHeightUnits">mm</font></p></td>					
+					<td width="4.5%"></td>
 				</tr>					
 			</table>
+			<hr style="width:10%;text-align:left;margin-left:0"/>	
 			<table style="width: 100%">
 				<tr>
-					<td width="20%"></td>
-					<td width="20%"><p class="heading-green"><input type="checkbox" id="svgEditor"/> Execute SVG Editor</p></td>
-					<td width="50%"><input class="text" style="width: 100%" id="svgEditorPath" type="text" value=""/></td>
-					<td width="10%" align="left"><input class="button" onClick="onConfigureSvgEditor()" type="button" value="..."/></td>					
+					<td width="4.5%"></td>
+					<td width="25%"><p class="heading-green"><input type="checkbox" id="svgEditor"/> Load SVG editor after save:</p></td>
+					<td width="62%">&nbsp;<input class="text" style="width: 100%" id="svgEditorPath" type="text" value=""/></td>
+					<td width="8%" align="left"><input class="button" onClick="onConfigureSvgEditor()" type="button" value="..."/></td>					
+					<td width="4.5%"></td>
 				</tr>					
 			</table>	
-			<table style="width: 100%">
-				<tr>
-					<td width="20%"><p class="heading-green">Export Annotations as:</p></td>
-					<td width="20%">
-						<select width="100%" id="texttype">
-							<option id="font">SVG Text...</option>
-							<option id="script">Laser Script Drawing...</option>
-						</select>						
-					</td>		
-					<td width="60%"></td>					
-				</tr>		
-			</table>		
-			<table style="width: 100%">
-				<tr>
-					<td width="20%"><p class="heading-green" id="textHeightLabel">Annotation Height:</p></td>
-					<td width="20%"><input class="text" style="width: 100%" id="textHeight" type="text" value="10"/></td>
-					<td width="60%"></td>
-				</tr>		
-			</table>
-			<table style="width: 100%">
-				<tr>
-					<td width="20%"><p class="heading-green">Export Face(s) as:</p></td>
-					<td width="20%">
-						<select width="100%" id="exporttype">
-							<option id="lines">Lines...</option>
-							<option id="paths">Paths...</option>
-						</select>						
-					</td>		
-					<td width="60%"></td>					
-				</tr>		
-			</table>	
-			<table style="width: 100%">
-				<tr>
-					<td width="20%"><p class="heading-green">Measurements:</p></td>
-					<td width="20%">
-						<select width="100%" onchange="changeUnits()" id="units">
-							<option id="millimeters">Millimeters...</option>
-							<option id="inches">Inches...</option>
-						</select>						
-					</td>		
-					<td width="60%"></td>					
-				</tr>		
-			</table>	
-			<table style="width: 100%">
-				<tr>
-					<td width="20%"><p class="heading-green" id="borderLabel">Border:</p></td>
-					<td width="20%"><input class="text" style="width: 100%" id="paperBorder" type="text" value="10"/></td>
-					<td width="60%"></td>
-				</tr>		
-			</table>		
-			<table style="width: 100%">
-				<tr>
-					<td width="20%"><p class="heading-green" id="borderLabel">Line Width:</p></td>
-					<td width="20%"><input class="text" style="width: 100%" id="lineWidth" type="text" value="1"/></td>
-					<td width="60%"></td>
-				</tr>		
-			</table>				
+			<hr style="width:10%;text-align:left;margin-left:0"/>				
 		</td>
 	</tr>
 	<tr>
 		<td colspan="2">
 			<table style="width: 100%">
 				<tr>
-					<td width="33%" align="center"><input class="button" onClick="onOk()" type="button" value="Ok"/></td>
-					<td width="33%" align="center"><input class="button" onClick="onCancel()" type="button" value="Cancel"/></td>
+					<td width="33%" align="center"><input class="button" style="width:55px" onClick="onOk()" type="button" value="Save"/></td>
+					<td width="33%" align="center"><input class="button" style="width:55px"onClick="onHelp()" type="button" value="Help"/></td>
+					<td width="33%" align="center"><input class="button" style="width:55px"onClick="onCancel()" type="button" value="Exit"/></td>
 				</tr>
 			   </table>
 		<td>	   
