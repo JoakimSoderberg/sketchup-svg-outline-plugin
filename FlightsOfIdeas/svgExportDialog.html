@@ -1,0 +1,405 @@
+<head>
+<meta http-equiv="Content-Type" content="text/html" />
+<link href="flightsOfIdeasStyle.css" rel="stylesheet" type="text/css" />
+<title>SVG Parameters (Flights of Ideas)</title>
+<script language="javascript">
+<!--
+//###########################################################
+//#
+//#    Scalable Vector Graphics (SVG) from Google Sketchup Faces
+//#    Copyright (C) 2009 Simon Beard
+//#
+//#    This program is free software: you can redistribute it and/or modify
+//#    it under the terms of the GNU General Public License as published by
+//#    the Free Software Foundation, either version 3 of the License, or
+//#    (at your option) any later version.
+//#
+//#    This program is distributed in the hope that it will be useful,
+//#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//#    GNU General Public License for more details.
+//#
+//#    You should have received a copy of the GNU General Public License
+//#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//#
+//###########################################################
+
+var previousUnits="";
+var svgEditorExec="";
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// Called when ... button is selected
+//////////////////////////////////////////////////////////////////////////////////////////////////
+function onFileSave()
+{
+	window.location='skp:on_file_save@'+document.getElementById("svgFilename").value;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// Called when configure button is selected
+//////////////////////////////////////////////////////////////////////////////////////////////////
+function onConfigureSvgEditor()
+{
+	window.location='skp:on_svg_editor_configure@'+svgEditorExec;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// Called when Ok button is selected
+//////////////////////////////////////////////////////////////////////////////////////////////////
+function onOk()
+{
+	exportAs = "paths";
+	hidden = "false";
+	etch = "false";
+	orphans = "false";
+	text="false";
+	textAs="scipt";
+	outline = "false";	
+	execEditor = "false"
+	editor = "";	
+
+	if (document.getElementById("exportOutline").checked)		
+		outline = "true";
+	if (document.getElementById("exportHidden").checked)		
+		hidden = "true";
+	if (document.getElementById("exportLines").checked)		
+		etch = "true";	
+	if (document.getElementById("exportOrphans").checked)		
+		orphans = "true";	
+	if (document.getElementById("exportText").checked)		
+		text = "true";	
+	if (document.getElementById("exporttype").selectedIndex == 0)
+		exportAs = "lines";
+	if (document.getElementById("texttype").selectedIndex == 0)
+		textAs = "SVG";	
+	if (document.getElementById("svgEditor").checked)
+		execEditor = "true";
+		editor = document.getElementById("svgEditorPath").value;
+		
+	window.location='skp:on_ok@'+document.getElementById("svgFilename").value+","+document.getElementById("paperBorder").value+","+previousUnits+","+hidden+","+outline+","+etch+","+orphans+","+
+		exportAs+","+document.getElementById("lineWidth").value+","+text+","+textAs+","+document.getElementById("textHeight").value+","+
+		document.getElementById("outlineRed").value+","+document.getElementById("outlineGreen").value+","+document.getElementById("outlineBlue").value+","+
+		document.getElementById("dissectRed").value+","+document.getElementById("dissectGreen").value+","+document.getElementById("dissectBlue").value+","+
+		document.getElementById("orphanRed").value+","+document.getElementById("orphanGreen").value+","+document.getElementById("orphanBlue").value+","+
+		document.getElementById("textRed").value+","+document.getElementById("textGreen").value+","+document.getElementById("textBlue").value+","+execEditor+","+editor;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// Called when cancelling dlg box
+//////////////////////////////////////////////////////////////////////////////////////////////////
+function onCancel()
+{
+	window.location='skp:on_close';
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// Called when changing units
+//////////////////////////////////////////////////////////////////////////////////////////////////
+function changeUnits()
+{
+	if ((document.getElementById("inches").selected) && (previousUnits=="mm")) {	
+		document.getElementById("borderLabel").innerHTML="Border (in):"
+		document.getElementById("textHeightLabel").innerHTML="Annotation Height (in):"
+		previousUnits	="in";
+	} else if ((document.getElementById("millimeters").selected) && (previousUnits=="in")) {
+		document.getElementById("borderLabel").innerHTML="Border (mm):"
+		document.getElementById("textHeightLabel").innerHTML="Annotation Height (mm):"
+		previousUnits	="mm";
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// Called to set dlg defaults
+//////////////////////////////////////////////////////////////////////////////////////////////////
+function setDefaults(defaults)
+{
+	args = defaults.split(',');
+	document.getElementById("svgFilename").value = args[0];
+	document.getElementById("paperBorder").value = args[1];
+	document.getElementById("exportHidden").checked = false;
+	document.getElementById("exportOutline").checked = false;
+	document.getElementById("exportLines").checked = false;
+	document.getElementById("exportOrphans").checked = false;
+	document.getElementById("exportText").checked = false;
+	document.getElementById("borderLabel").innerHTML="Border (mm):"
+	document.getElementById("textHeightLabel").innerHTML="Annotation Height (mm):"
+	previousUnits="mm";
+	if (args[2] == "in") {		
+		document.getElementById("inches").selected=true;
+		changeUnits();
+	}
+	if (args[3] == "true")
+		document.getElementById("exportHidden").checked = true;	
+	if (args[4] == "true")
+		document.getElementById("exportOutline").checked = true;		
+	if (args[5] == "true")
+		document.getElementById("exportLines").checked = true;
+	if (args[6] == "true")
+		document.getElementById("exportOrphans").checked = true;		
+	document.getElementById("exporttype").selectedIndex = 1;
+	if (args[7] == "lines")
+		document.getElementById("exporttype").selectedIndex = 0;	
+	document.getElementById("LineWidth").value = args[8];
+	if (args[9] == "true")
+		document.getElementById("exportText").checked = true;
+	document.getElementById("textType").selectedIndex = 1;	
+	if (args[10] == "SVG")
+		document.getElementById("texttype").selectedIndex = 0;		
+	document.getElementById("textHeight").value = args[11];	
+	document.getElementById("outlineRed").value = args[12];
+	document.getElementById("outlineGreen").value = args[13];
+	document.getElementById("outlineBlue").value = args[14];
+	document.getElementById("dissectRed").value = args[15];
+	document.getElementById("dissectGreen").value = args[16];
+	document.getElementById("dissectBlue").value = args[17];	
+	document.getElementById("orphanRed").value = args[18];
+	document.getElementById("orphanGreen").value = args[19];
+	document.getElementById("orphanBlue").value = args[20];	
+	document.getElementById("textRed").value = args[21];
+	document.getElementById("textGreen").value = args[22];
+	document.getElementById("textBlue").value = args[23];	
+	document.getElementById("svgEditor").checked = false;
+	if (args[24] == "true")
+		document.getElementById("svgEditor").checked = true;	
+	document.getElementById("svgEditorPath").value = args[25];	
+	updateColour();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// Called to error check and update colours and fields for the dialog box
+//////////////////////////////////////////////////////////////////////////////////////////////////
+function updateColour()
+{	
+	or = document.getElementById("outlineRed").value;
+	og = document.getElementById("outlineGreen").value;
+	ob = document.getElementById("outlineBlue").value;
+	dr = document.getElementById("dissectRed").value;
+	dg = document.getElementById("dissectGreen").value;
+	db = document.getElementById("dissectBlue").value;
+	orr = document.getElementById("orphanRed").value;
+	org = document.getElementById("orphanGreen").value;
+	orb = document.getElementById("orphanBlue").value;
+	tr = document.getElementById("textRed").value;
+	tg = document.getElementById("textGreen").value;
+	tb = document.getElementById("textBlue").value;
+
+	if (or > 255) { or = 255; }  else if (or < 0) { or = 0; }
+	if (og > 255) { og = 255; }  else if (og < 0) { og = 0; }
+	if (ob > 255) { ob = 255; }  else if (ob < 0) { ob = 0; }
+	if (dr > 255) { dr = 255; }  else if (dr < 0) { dr = 0; }
+	if (dg > 255) { dg = 255; }  else if (dg < 0) { dg = 0; }
+	if (db > 255) { db = 255; }  else if (db < 0) { db = 0; }
+	if (orr > 255) { orr = 255; }  else if (orr < 0) { orr = 0; }
+	if (org > 255) { org = 255; }  else if (org < 0) { org = 0; }
+	if (orb > 255) { orb = 255; }  else if (orb < 0) { orb = 0; }
+	if (tr > 255) { tr = 255; }  else if (tr < 0) { tr = 0; }
+	if (tg > 255) { tg = 255; }  else if (tg < 0) { tg = 0; }
+	if (tb > 255) { tb = 255; }  else if (tb < 0) { tb = 0; }
+	
+	document.getElementById("outlineColour").style.backgroundColor="rgb("+or+","+og+","+ob+")";
+	document.getElementById("dissectColour").style.backgroundColor="rgb("+dr+","+dg+","+db+")";
+	document.getElementById("orphanColour").style.backgroundColor="rgb("+orr+","+org+","+orb+")";
+	document.getElementById("textColour").style.backgroundColor="rgb("+tr+","+tg+","+tb+")";
+	
+	document.getElementById("outlineRed").value = or;
+	document.getElementById("outlineGreen").value = og;
+	document.getElementById("outlineBlue").value = ob;
+	document.getElementById("dissectRed").value = dr;
+	document.getElementById("dissectGreen").value = dg;
+	document.getElementById("dissectBlue").value = db;
+	document.getElementById("orphanRed").value = orr;
+	document.getElementById("orphanGreen").value = org;
+	document.getElementById("orphanBlue").value = orb;
+	document.getElementById("textRed").value = tr;
+	document.getElementById("textGreen").value = tg;
+	document.getElementById("textBlue").value = tb;	
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// Called to set new SVG filename
+//////////////////////////////////////////////////////////////////////////////////////////////////
+function setFilename(filename)
+{	
+	document.getElementById("svgFilename").value = filename;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// Called to set new SVG editor
+//////////////////////////////////////////////////////////////////////////////////////////////////
+function setSvgEditor(svgeditor)
+{	
+	document.getElementById("svgEditorPath").value = svgeditor;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// Sketchup functions
+//////////////////////////////////////////////////////////////////////////////////////////////////
+function sizeWindow()
+{
+	// check the screen size
+	if(window.screen.availHeight <= 600 || window.screen.availWidth <= 800)
+	{
+		window.location = "skp:small_window";
+	}
+}
+function doLoad()
+{
+    var os = navigator.appVersion.indexOf('Mac') != -1? 'Mac' : 'Win';
+    if(os == 'Win')
+	{
+		window.location='skp:onload'
+	}
+	updateColour();
+}
+-->
+</script>
+<link href="./flightsOfIdeas.css" rel="stylesheet" type="text/css" />
+</head>
+<html>
+<body onload=""> 
+<table style="width: 100%">
+	<tr>	
+		<td width="50px">
+			<img src="./Images/dragonfly_50.png"/>
+		</td>	
+		<td width="100%">
+			<h2>Export Faces To SVG</h2>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2">
+			<table style="width: 100%">
+				<tr>
+					<td width="20%"><p class="heading-green">Output File:</p></td>
+					<td width="70%"><input class="text" style="width: 100%" id="svgFilename" type="text" value="flightsofideas.svg"/></td>
+					<td width="10%"><input class="button" type="button" value="..." onClick="onFileSave()"/></td>			
+				</tr>
+			</table>
+			<table style="width: 100%">
+				<tr>
+					<td width="20%"></td>
+					<td width="40%"><p class="heading-green"><input type="checkbox" id="exportHidden"/> Export Hidden Entities</p></td>					
+					<td width="40%"></td>
+				</tr>					
+			</table>				
+			<table style="width: 100%">
+				<tr>
+					<td width="20%"></td>
+					<td width="40%"><p class="heading-green"><input type="checkbox" id="exportOutline"/> Export Outlines of Face(s)</p></td>
+					<td width="12%">r <input class="text" style="width: 50%" id="outlineRed" type="text" value="0" onkeyup="updateColour();"/></td>
+					<td width="12%">g <input class="text" style="width: 50%" id="outlineGreen" type="text" value="0" onkeyup="updateColour();"/></td>
+					<td width="12%">b <input class="text" style="width: 50%" id="outlineBlue" type="text" value="255" onkeyup="updateColour();"/></td>
+					<td width="4%" id="outlineColour"></td>
+				</tr>					
+			</table>						
+			<table style="width: 100%">
+				<tr>
+					<td width="20%"></td>
+					<td width="40%"><p class="heading-green"><input type="checkbox" id="exportLines"/> Export Lines Dissecting Face(s)</p></td>
+					<td width="12%">r <input class="text" style="width: 50%" id="dissectRed" type="text" value="255" onkeyup="updateColour();"/></td>
+					<td width="12%">g <input class="text" style="width: 50%" id="dissectGreen" type="text" value="0" onkeyup="updateColour();"/></td>
+					<td width="12%">b <input class="text" style="width: 50%" id="dissectBlue" type="text" value="0" onkeyup="updateColour();"/></td>
+					<td width="4%" id="dissectColour"></td>
+				</tr>					
+			</table>
+			<table style="width: 100%">
+				<tr>
+					<td width="20%"></td>
+					<td width="40%"><p class="heading-green"><input type="checkbox" id="exportOrphans"/> Export Lines on Face(s)</p></td>
+					<td width="12%">r <input class="text" style="width: 50%" id="orphanRed" type="text" value="0" onkeyup="updateColour();"/></td>
+					<td width="12%">g <input class="text" style="width: 50%" id="orphanGreen" type="text" value="255" onkeyup="updateColour();"/></td>
+					<td width="12%">b <input class="text" style="width: 50%" id="orphanBlue" type="text" value="0" onkeyup="updateColour();"/></td>
+					<td width="4%" id="orphanColour"></td>
+				</tr>					
+			</table>	
+			<table style="width: 100%">
+				<tr>
+					<td width="20%"></td>
+					<td width="40%"><p class="heading-green"><input type="checkbox" id="exportText"/> Export Annotations for Face(s)</p></td>
+					<td width="12%">r <input class="text" style="width: 50%" id="textRed" type="text" value="255" onkeyup="updateColour();"/></td>
+					<td width="12%">g <input class="text" style="width: 50%" id="textGreen" type="text" value="0" onkeyup="updateColour();"/></td>
+					<td width="12%">b <input class="text" style="width: 50%" id="textBlue" type="text" value="0" onkeyup="updateColour();"/></td>
+					<td width="4%" id="textColour"></td>
+				</tr>					
+			</table>
+			<table style="width: 100%">
+				<tr>
+					<td width="20%"></td>
+					<td width="20%"><p class="heading-green"><input type="checkbox" id="svgEditor"/> Execute SVG Editor</p></td>
+					<td width="50%"><input class="text" style="width: 100%" id="svgEditorPath" type="text" value=""/></td>
+					<td width="10%" align="left"><input class="button" onClick="onConfigureSvgEditor()" type="button" value="..."/></td>					
+				</tr>					
+			</table>	
+			<table style="width: 100%">
+				<tr>
+					<td width="20%"><p class="heading-green">Export Annotations as:</p></td>
+					<td width="20%">
+						<select width="100%" id="texttype">
+							<option id="font">SVG Text...</option>
+							<option id="script">Laser Script Drawing...</option>
+						</select>						
+					</td>		
+					<td width="60%"></td>					
+				</tr>		
+			</table>		
+			<table style="width: 100%">
+				<tr>
+					<td width="20%"><p class="heading-green" id="textHeightLabel">Annotation Height:</p></td>
+					<td width="20%"><input class="text" style="width: 100%" id="textHeight" type="text" value="10"/></td>
+					<td width="60%"></td>
+				</tr>		
+			</table>
+			<table style="width: 100%">
+				<tr>
+					<td width="20%"><p class="heading-green">Export Face(s) as:</p></td>
+					<td width="20%">
+						<select width="100%" id="exporttype">
+							<option id="lines">Lines...</option>
+							<option id="paths">Paths...</option>
+						</select>						
+					</td>		
+					<td width="60%"></td>					
+				</tr>		
+			</table>	
+			<table style="width: 100%">
+				<tr>
+					<td width="20%"><p class="heading-green">Measurements:</p></td>
+					<td width="20%">
+						<select width="100%" onchange="changeUnits()" id="units">
+							<option id="millimeters">Millimeters...</option>
+							<option id="inches">Inches...</option>
+						</select>						
+					</td>		
+					<td width="60%"></td>					
+				</tr>		
+			</table>	
+			<table style="width: 100%">
+				<tr>
+					<td width="20%"><p class="heading-green" id="borderLabel">Border:</p></td>
+					<td width="20%"><input class="text" style="width: 100%" id="paperBorder" type="text" value="10"/></td>
+					<td width="60%"></td>
+				</tr>		
+			</table>		
+			<table style="width: 100%">
+				<tr>
+					<td width="20%"><p class="heading-green" id="borderLabel">Line Width:</p></td>
+					<td width="20%"><input class="text" style="width: 100%" id="lineWidth" type="text" value="1"/></td>
+					<td width="60%"></td>
+				</tr>		
+			</table>				
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2">
+			<table style="width: 100%">
+				<tr>
+					<td width="33%" align="center"><input class="button" onClick="onOk()" type="button" value="Ok"/></td>
+					<td width="33%" align="center"><input class="button" onClick="onCancel()" type="button" value="Cancel"/></td>
+				</tr>
+			   </table>
+		<td>	   
+	</tr>
+</table>	   
+</div> 
+</body>
+</html>
