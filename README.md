@@ -12,7 +12,7 @@ Make sure you have any previous plugin version uninstalled. You might even have 
 
 Installation
 ------------
-1. Download the latest `.zip` under releases, then change the file ending to `.rbz`
+1. Download the latest `.rbz` file from [releases](https://github.com/JoakimSoderberg/sketchup-svg-outline-plugin/releases)
 2. Go into the Sketchup **preferences**.
 3. Under **Extensions**, click **Install extension** and find the `.rbz` file.
 4. Make sure the **FlightsOfIdeasSVG** extension is checked in the list of extensions.
