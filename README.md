@@ -30,6 +30,8 @@ Usage
 
 The plugin has its own tool palette. It is made visible through activating the menu item **View > Tool Palettes > FlightsOfIdeas**.
 The tool palette has a single button that reads 'SVG':
+
 ![Button that reads SVG](/FlightsOfIdeas/Images/CreateSvg.png?raw=true)
+
 To use the plugin, a face in SketchUp needs to be selected. Then, the 'SVG' button can be clicked and the plugin dialogue appears.
 
