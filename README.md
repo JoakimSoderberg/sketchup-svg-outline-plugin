@@ -24,3 +24,14 @@ Verify you have the correct version installed
 Please note that this version of the plugin only has one button with SVG on it. There should not be any mosquite icon or link to any webpage. If you still see this you have an older version installed still.
 
 If the save button does nothing, this is also an indicator that you have an old version installed. Remove it and reinstall.
+
+Usage
+-----
+
+The plugin has its own tool palette. It is made visible through activating the menu item **View > Tool Palettes > FlightsOfIdeas**.
+The tool palette has a single button that reads 'SVG':
+
+![Button that reads SVG](/FlightsOfIdeas/Images/CreateSvg.png?raw=true)
+
+To use the plugin, a face in SketchUp needs to be selected. Then, the 'SVG' button can be clicked and the plugin dialogue appears.
+
